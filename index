@@ -1,0 +1,1175 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aplikasi Transkrip Nilai Mahasiswa</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.0/font/bootstrap-icons.css">
+    <style>
+        body {
+            font-family: 'Times New Roman', Times, serif;
+            background-color: #f5f5f5;
+            padding: 20px 0;
+        }
+        .app-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 15px;
+        }
+        .tab-content {
+            background-color: white;
+            border: 1px solid #ddd;
+            border-top: none;
+            padding: 20px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+        }
+        .nav-tabs {
+            margin-bottom: 0;
+        }
+        .database-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 20px;
+        }
+        .database-table th, .database-table td {
+            padding: 8px;
+            border: 1px solid #ddd;
+            text-align: center;
+        }
+        .database-table th {
+            background-color: #f8f9fa;
+            font-weight: bold;
+        }
+        .database-table td:nth-child(3) {
+            text-align: left;
+        }
+        .editable {
+            cursor: pointer;
+            position: relative;
+        }
+        .editable:hover {
+            background-color: #f0f0f0;
+        }
+        .edit-input {
+            width: 70px;
+            padding: 3px;
+            border: 1px solid #007bff;
+            border-radius: 3px;
+        }
+        .semester-header {
+            background-color: #e9ecef;
+            font-weight: bold;
+        }
+        .save-btn {
+            margin-top: 20px;
+        }
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px;
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+            border-radius: 5px;
+            display: none;
+            z-index: 1000;
+        }
+        .transcript-container {
+            background-color: white;
+            border: 1px solid #ddd;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            padding: 30px;
+            margin-bottom: 30px;
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            border-bottom: 2px solid #333;
+            padding-bottom: 20px;
+        }
+        .university-name {
+            font-size: 20px;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+        .faculty-name {
+            font-size: 18px;
+            margin-bottom: 5px;
+        }
+        .program-name {
+            font-size: 16px;
+            margin-bottom: 5px;
+        }
+        .transcript-title {
+            font-size: 18px;
+            font-weight: bold;
+            margin: 15px 0;
+        }
+        .student-info {
+            margin-bottom: 20px;
+        }
+        .student-info table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .student-info td {
+            padding: 5px;
+            border: none;
+        }
+        .student-info td:first-child {
+            width: 30%;
+            font-weight: bold;
+        }
+        .student-info-input {
+            border: none;
+            border-bottom: 1px solid #ddd;
+            background: transparent;
+            width: 100%;
+            padding: 2px 5px;
+        }
+        .student-info-input:focus {
+            outline: none;
+            border-bottom: 1px solid #007bff;
+            background-color: #f8f9fa;
+        }
+        .student-info-input:hover {
+            background-color: #f8f9fa;
+        }
+        .semester-section {
+            margin-bottom: 25px;
+        }
+        .semester-title {
+            font-weight: bold;
+            margin-bottom: 10px;
+            padding: 5px;
+            background-color: #f8f9fa;
+            border-left: 4px solid #0d6efd;
+        }
+        .course-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 15px;
+        }
+        .course-table th {
+            background-color: #f8f9fa;
+            text-align: center;
+            padding: 8px;
+            border: 1px solid #ddd;
+            font-weight: bold;
+        }
+        .course-table td {
+            padding: 8px;
+            border: 1px solid #ddd;
+            text-align: center;
+        }
+        .course-table td:nth-child(2) {
+            text-align: left;
+        }
+        .summary-section {
+            margin-top: 30px;
+            border-top: 2px solid #333;
+            padding-top: 20px;
+        }
+        .summary-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        .summary-table td {
+            padding: 8px;
+            border: none;
+        }
+        .summary-table td:first-child {
+            width: 30%;
+            font-weight: bold;
+        }
+        .gpa-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        .gpa-table th, .gpa-table td {
+            padding: 8px;
+            border: 1px solid #ddd;
+            text-align: center;
+        }
+        .gpa-table th {
+            background-color: #f8f9fa;
+            font-weight: bold;
+        }
+        .print-btn {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 1000;
+        }
+        @media print {
+            .print-btn, .nav-tabs, .notification, .student-info-edit-btn {
+                display: none;
+            }
+            body {
+                background-color: white;
+                padding: 0;
+            }
+            .transcript-container {
+                box-shadow: none;
+                border: none;
+            }
+            .student-info-input {
+                border: none;
+                background: transparent;
+            }
+        }
+        .grade-info {
+            font-size: 0.8em;
+            color: #666;
+            white-space: nowrap;
+        }
+        .grade-popup {
+            position: absolute;
+            background-color: white;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            padding: 10px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.2);
+            z-index: 1000;
+            display: none;
+            min-width: 200px;
+        }
+        .grade-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.85em;
+        }
+        .grade-table th, .grade-table td {
+            padding: 5px;
+            border: 1px solid #ddd;
+            text-align: center;
+        }
+        .grade-table th {
+            background-color: #f8f9fa;
+            font-weight: bold;
+        }
+        .grade-indicator {
+            cursor: help;
+            text-decoration: underline dotted;
+            color: #0d6efd;
+        }
+        .student-info-edit-btn {
+            float: right;
+            margin-bottom: 10px;
+            font-size: 0.9em;
+        }
+        .student-info-display {
+            display: block;
+        }
+        .student-info-edit {
+            display: none;
+        }
+        .edit-mode .student-info-display {
+            display: none;
+        }
+        .edit-mode .student-info-edit {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <div class="app-container">
+        <h1 class="text-center mb-4">Aplikasi Transkrip Nilai Mahasiswa</h1>
+        
+        <ul class="nav nav-tabs" id="myTab" role="tablist">
+            <li class="nav-item" role="presentation">
+                <button class="nav-link active" id="database-tab" data-bs-toggle="tab" data-bs-target="#database" type="button" role="tab" aria-controls="database" aria-selected="true">Database Nilai</button>
+            </li>
+            <li class="nav-item" role="presentation">
+                <button class="nav-link" id="transkrip-tab" data-bs-toggle="tab" data-bs-target="#transkrip" type="button" role="tab" aria-controls="transkrip" aria-selected="false">Transkrip Nilai</button>
+            </li>
+        </ul>
+        
+        <div class="tab-content" id="myTabContent">
+            <div class="tab-pane fade show active" id="database" role="tabpanel" aria-labelledby="database-tab">
+                <h2 class="mb-4">Database Nilai Mahasiswa</h2>
+                
+                <div class="table-responsive">
+                    <table class="database-table" id="nilaiDatabase">
+                        <thead>
+                            <tr>
+                                <th>SMT</th>
+                                <th>No.</th>
+                                <th>Mata Kuliah</th>
+                                <th>Nilai Absen (5%)</th>
+                                <th>Nilai Tugas (5%)</th>
+                                <th>Nilai UTS (35%)</th>
+                                <th>Nilai UAS (55%)</th>
+                                <th>Nilai Akhir</th>
+                                <th>Nilai Huruf</th>
+                                <th>Bobot</th>
+                                <th>Keterangan</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <!-- Data akan diisi dengan JavaScript -->
+                        </tbody>
+                    </table>
+                </div>
+                
+                <button class="btn btn-primary save-btn" onclick="saveChanges()">
+                    <i class="bi bi-save"></i> Simpan Perubahan
+                </button>
+                
+                <div class="alert alert-info mt-3">
+                    <i class="bi bi-info-circle"></i> Klik pada nilai yang ingin diubah, lalu tekan Enter untuk menyimpan perubahan.
+                </div>
+                
+                <!-- Tabel Keterangan Penilaian -->
+                <div class="mt-4">
+                    <h4>Keterangan Penilaian</h4>
+                    <div class="table-responsive">
+                        <table class="table table-bordered table-striped">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>KENTUNG NILAI</th>
+                                    <th>NILAI HURUF</th>
+                                    <th>BOBOT</th>
+                                    <th>KRITERIA</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td>85 - 100</td>
+                                    <td>A</td>
+                                    <td>4.00</td>
+                                    <td>Sangat Baik Sekali</td>
+                                </tr>
+                                <tr>
+                                    <td>80 - 84.99</td>
+                                    <td>A-</td>
+                                    <td>3.75</td>
+                                    <td>Sangat Baik</td>
+                                </tr>
+                                <tr>
+                                    <td>75 - 79.99</td>
+                                    <td>B+</td>
+                                    <td>3.50</td>
+                                    <td>Baik Sekali</td>
+                                </tr>
+                                <tr>
+                                    <td>70 - 74.99</td>
+                                    <td>B</td>
+                                    <td>3.00</td>
+                                    <td>Baik</td>
+                                </tr>
+                                <tr>
+                                    <td>65 - 69.99</td>
+                                    <td>B-</td>
+                                    <td>2.75</td>
+                                    <td>Cukup Baik</td>
+                                </tr>
+                                <tr>
+                                    <td>60 - 64.99</td>
+                                    <td>C+</td>
+                                    <td>2.50</td>
+                                    <td>Cukup</td>
+                                </tr>
+                                <tr>
+                                    <td>55 - 59.99</td>
+                                    <td>C</td>
+                                    <td>2.00</td>
+                                    <td>Cukup</td>
+                                </tr>
+                                <tr>
+                                    <td>50 - 54.99</td>
+                                    <td>C-</td>
+                                    <td>1.75</td>
+                                    <td>Kurang</td>
+                                </tr>
+                                <tr>
+                                    <td>40 - 49.99</td>
+                                    <td>D</td>
+                                    <td>1.00</td>
+                                    <td>Kurang Sekali</td>
+                                </tr>
+                                <tr>
+                                    <td>&lt; 40</td>
+                                    <td>E</td>
+                                    <td>0.00</td>
+                                    <td>Gagal</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="tab-pane fade" id="transkrip" role="tabpanel" aria-labelledby="transkrip-tab">
+                <div class="transcript-container">
+                    <div class="header">
+                        <div class="university-name">UNIVERSITAS WIJAYAKUSUMA PURWOKERTO</div>
+                        <div class="faculty-name">FAKULTAS TEKNIK</div>
+                        <div class="program-name">PROGRAM STUDI TEKNIK SIPIL</div>
+                        <div>Alamat : Jl. Beji Karangsalam Telp. (0281) 6439889 Purwokerto 53152</div>
+                        <div class="transcript-title">TRANSKRIP KURIKULUM OUTCOME BASED EDUCATION (OBE)</div>
+                        <div class="program-name">PROGRAM STUDI TEKNIK SIPIL</div>
+                    </div>
+                    
+                    <div class="student-info" id="studentInfoSection">
+                        <button class="btn btn-sm btn-outline-primary student-info-edit-btn" onclick="toggleStudentInfoEdit()">
+                            <i class="bi bi-pencil"></i> Edit Informasi Mahasiswa
+                        </button>
+                        
+                        <div class="student-info-display">
+                            <table>
+                                <tr>
+                                    <td>NAMA MAHASISWA</td>
+                                    <td>:</td>
+                                    <td id="displayNama">RAHMAN</td>
+                                </tr>
+                                <tr>
+                                    <td>NPM</td>
+                                    <td>:</td>
+                                    <td id="displayNPM">25410104491</td>
+                                </tr>
+                                <tr>
+                                    <td>TAHUN MASUK</td>
+                                    <td>:</td>
+                                    <td id="displayTahunMasuk">2025</td>
+                                </tr>
+                                <tr>
+                                    <td>No. HP/WA</td>
+                                    <td>:</td>
+                                    <td id="displayNoHP">0812 9810 8109</td>
+                                </tr>
+                                <tr>
+                                    <td>DOSEN PEMB. AKADEMIK</td>
+                                    <td>:</td>
+                                    <td id="displayDospem">ATIYAH BARKAH, ST., MT.</td>
+                                </tr>
+                            </table>
+                        </div>
+                        
+                        <div class="student-info-edit">
+                            <table>
+                                <tr>
+                                    <td>NAMA MAHASISWA</td>
+                                    <td>:</td>
+                                    <td><input type="text" class="student-info-input" id="inputNama" value="RAHMAN"></td>
+                                </tr>
+                                <tr>
+                                    <td>NPM</td>
+                                    <td>:</td>
+                                    <td><input type="text" class="student-info-input" id="inputNPM" value="25410104491"></td>
+                                </tr>
+                                <tr>
+                                    <td>TAHUN MASUK</td>
+                                    <td>:</td>
+                                    <td><input type="text" class="student-info-input" id="inputTahunMasuk" value="2025"></td>
+                                </tr>
+                                <tr>
+                                    <td>No. HP/WA</td>
+                                    <td>:</td>
+                                    <td><input type="text" class="student-info-input" id="inputNoHP" value="0812 9810 8109"></td>
+                                </tr>
+                                <tr>
+                                    <td>DOSEN PEMB. AKADEMIK</td>
+                                    <td>:</td>
+                                    <td><input type="text" class="student-info-input" id="inputDospem" value="ATIYAH BARKAH, ST., MT."></td>
+                                </tr>
+                            </table>
+                            <div class="mt-3">
+                                <button class="btn btn-sm btn-success me-2" onclick="saveStudentInfo()">
+                                    <i class="bi bi-check"></i> Simpan
+                                </button>
+                                <button class="btn btn-sm btn-secondary" onclick="cancelStudentInfoEdit()">
+                                    <i class="bi bi-x"></i> Batal
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="course-list" id="transkripContent">
+                        <!-- Transkrip akan diisi dengan JavaScript -->
+                    </div>
+                    
+                    <div class="summary-section">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <table class="summary-table">
+                                    <tr>
+                                        <td>JUMLAH SKS HARUS</td>
+                                        <td>:</td>
+                                        <td>144</td>
+                                    </tr>
+                                    <tr>
+                                        <td>JUMLAH SKS SUDAH</td>
+                                        <td>:</td>
+                                        <td>144</td>
+                                    </tr>
+                                    <tr>
+                                        <td>JUMLAH SKS BELUM</td>
+                                        <td>:</td>
+                                        <td>0</td>
+                                    </tr>
+                                </table>
+                            </div>
+                            <div class="col-md-6">
+                                <table class="summary-table">
+                                    <tr>
+                                        <td>TOTAL NILAI</td>
+                                        <td>:</td>
+                                        <td id="totalNilai">5854.05</td>
+                                    </tr>
+                                    <tr>
+                                        <td>JUMLAH BOBOT</td>
+                                        <td>:</td>
+                                        <td>261.25</td>
+                                    </tr>
+                                    <tr>
+                                        <td>JUMLAH MUTU</td>
+                                        <td>:</td>
+                                        <td id="jumlahMutu">570.25</td>
+                                    </tr>
+                                </table>
+                            </div>
+                        </div>
+                        
+                        <div class="row mt-4">
+                            <div class="col-md-6">
+                                <h5>PERSYARATAN</h5>
+                                <table class="summary-table">
+                                    <tr>
+                                        <td>KKN</td>
+                                        <td>:</td>
+                                        <td>SKS : >80 | Boleh</td>
+                                    </tr>
+                                    <tr>
+                                        <td>KP</td>
+                                        <td>:</td>
+                                        <td>SKS : >100 | Boleh</td>
+                                    </tr>
+                                    <tr>
+                                        <td>TA</td>
+                                        <td>:</td>
+                                        <td>SKS: >125 | Boleh</td>
+                                    </tr>
+                                </table>
+                            </div>
+                            <div class="col-md-6">
+                                <h5>INDEKS PRESTASI</h5>
+                                <table class="gpa-table">
+                                    <thead>
+                                        <tr>
+                                            <th>SMT</th>
+                                            <th>IPS (Indeks Prestasi Semester)</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>I</td>
+                                            <td id="ips1">3.94</td>
+                                        </tr>
+                                        <tr>
+                                            <td>II</td>
+                                            <td id="ips2">3.95</td>
+                                        </tr>
+                                        <tr>
+                                            <td>III</td>
+                                            <td id="ips3">4.00</td>
+                                        </tr>
+                                        <tr>
+                                            <td>IV</td>
+                                            <td id="ips4">3.97</td>
+                                        </tr>
+                                        <tr>
+                                            <td>V</td>
+                                            <td id="ips5">3.97</td>
+                                        </tr>
+                                        <tr>
+                                            <td>VI</td>
+                                            <td id="ips6">3.94</td>
+                                        </tr>
+                                        <tr>
+                                            <td>VII</td>
+                                            <td id="ips7">3.93</td>
+                                        </tr>
+                                        <tr>
+                                            <td>VIII</td>
+                                            <td id="ips8">4.00</td>
+                                        </tr>
+                                        <tr style="font-weight: bold;">
+                                            <td>IPK (Indeks Prestasi Kumulatif)</td>
+                                            <td id="ipk">3.96</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <button class="btn btn-primary print-btn" onclick="window.print()">
+                    <i class="bi bi-printer"></i> Cetak Transkrip
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <div class="notification" id="notification">
+        <i class="bi bi-check-circle"></i> Perubahan berhasil disimpan!
+    </div>
+    
+    <!-- Popup untuk keterangan nilai -->
+    <div class="grade-popup" id="gradePopup">
+        <table class="grade-table">
+            <thead>
+                <tr>
+                    <th>Nilai</th>
+                    <th>Huruf</th>
+                    <th>Bobot</th>
+                    <th>Keterangan</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>85-100</td>
+                    <td>A</td>
+                    <td>4.00</td>
+                    <td>Sangat Baik Sekali</td>
+                </tr>
+                <tr>
+                    <td>80-84.99</td>
+                    <td>A-</td>
+                    <td>3.75</td>
+                    <td>Sangat Baik</td>
+                </tr>
+                <tr>
+                    <td>75-79.99</td>
+                    <td>B+</td>
+                    <td>3.50</td>
+                    <td>Baik Sekali</td>
+                </tr>
+                <tr>
+                    <td>70-74.99</td>
+                    <td>B</td>
+                    <td>3.00</td>
+                    <td>Baik</td>
+                </tr>
+                <tr>
+                    <td>65-69.99</td>
+                    <td>B-</td>
+                    <td>2.75</td>
+                    <td>Cukup Baik</td>
+                </tr>
+                <tr>
+                    <td>60-64.99</td>
+                    <td>C+</td>
+                    <td>2.50</td>
+                    <td>Cukup</td>
+                </tr>
+                <tr>
+                    <td>55-59.99</td>
+                    <td>C</td>
+                    <td>2.00</td>
+                    <td>Cukup</td>
+                </tr>
+                <tr>
+                    <td>50-54.99</td>
+                    <td>C-</td>
+                    <td>1.75</td>
+                    <td>Kurang</td>
+                </tr>
+                <tr>
+                    <td>40-49.99</td>
+                    <td>D</td>
+                    <td>1.00</td>
+                    <td>Kurang Sekali</td>
+                </tr>
+                <tr>
+                    <td>&lt;40</td>
+                    <td>E</td>
+                    <td>0.00</td>
+                    <td>Gagal</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+    
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        // Data mahasiswa
+        let studentData = {
+            nama: 'RAHMAN',
+            npm: '25410104491',
+            tahunMasuk: '2025',
+            noHP: '0812 9810 8109',
+            dospem: 'ATIYAH BARKAH, ST., MT.'
+        };
+        
+        // Data mata kuliah dari file
+        const mataKuliahData = [
+            // Semester I
+            {smt: 'I', no: 1, nama: 'Matematika I', absen: 78, tugas: 89, uts: 85, uas: 90, sks: 4, kode: 'TKS25101'},
+            {smt: 'I', no: 2, nama: 'Fiaika Dasar Mekanika', absen: 89, tugas: 86, uts: 80, uas: 85, sks: 2, kode: 'TKS25102'},
+            {smt: 'I', no: 3, nama: 'Algoritma dan Pemrograman', absen: 97, tugas: 97, uts: 88, uas: 95, sks: 2, kode: 'TKS25103'},
+            {smt: 'I', no: 4, nama: 'Geologi dan Geotektonik', absen: 95, tugas: 93, uts: 82, uas: 88, sks: 2, kode: 'TKS25104'},
+            {smt: 'I', no: 5, nama: 'Jati Diri UNWIKU', absen: 91, tugas: 90, uts: 92, uas: 85, sks: 2, kode: 'UNO2010TKS'},
+            {smt: 'I', no: 6, nama: 'Gambar Struktur Bangunan', absen: 93, tugas: 80, uts: 80, uas: 85, sks: 3, kode: 'TKS25105'},
+            {smt: 'I', no: 7, nama: 'Analisis Struktur I', absen: 94, tugas: 89, uts: 80, uas: 95, sks: 3, kode: 'TKS25106'},
+            {smt: 'I', no: 8, nama: 'Geomatika', absen: 88, tugas: 844, uts: 80, uas: 90, sks: 1, kode: 'TKS25107'},
+            {smt: 'I', no: 9, nama: 'Praktikum Geomatika', absen: 89, tugas: 97, uts: 85, uas: 90, sks: 1, kode: 'TKS25108'},
+            
+            // Semester II
+            {smt: 'II', no: 1, nama: 'Matematika II', absen: 84, tugas: 91, uts: 82, uas: 88, sks: 3, kode: 'TKS25201'},
+            {smt: 'II', no: 2, nama: 'Kimia', absen: 93, tugas: 92, uts: 90, uas: 95, sks: 3, kode: 'TKS25202'},
+            {smt: 'II', no: 3, nama: 'Fisika Dasar Listrik dan Termal', absen: 74, tugas: 85, uts: 81, uas: 85, sks: 2, kode: 'TKS25203'},
+            {smt: 'II', no: 4, nama: 'Analisis Struktur II', absen: 98, tugas: 93, uts: 85, uas: 90, sks: 3, kode: 'TKS25204'},
+            {smt: 'II', no: 5, nama: 'Rekayasa Lingkungan', absen: 92, tugas: 86, uts: 80, uas: 85, sks: 2, kode: 'TKS25205'},
+            {smt: 'II', no: 6, nama: 'Mekanika fluida', absen: 82, tugas: 92, uts: 83, uas: 90, sks: 2, kode: 'TKS25206'},
+            {smt: 'II', no: 7, nama: 'Rekayasa Lalu Lintas', absen: 94, tugas: 94, uts: 80, uas: 87, sks: 2, kode: 'TKS25207'},
+            {smt: 'II', no: 8, nama: 'Mekanika Tanah', absen: 87, tugas: 89, uts: 86, uas: 95, sks: 3, kode: 'TKS25208'},
+            
+            // Semester III
+            {smt: 'III', no: 1, nama: 'Matematika III', absen: 82, tugas: 80, uts: 89, uas: 95, sks: 3, kode: 'TKS25301'},
+            {smt: 'III', no: 2, nama: 'Biologi Lingkungan & Ekologi', absen: 79, tugas: 90, uts: 82, uas: 90, sks: 2, kode: 'TKS25302'},
+            {smt: 'III', no: 3, nama: 'Mekanika Bahan', absen: 92, tugas: 93, uts: 92, uas: 94, sks: 3, kode: 'TKS25303'},
+            {smt: 'III', no: 4, nama: 'Bahan bangunan dan dasar-dasar teknologi beton', absen: 94, tugas: 81, uts: 83, uas: 86, sks: 3, kode: 'TKS25304'},
+            {smt: 'III', no: 5, nama: 'Geometri Jalan Raya', absen: 91, tugas: 85, uts: 81, uas: 90, sks: 2, kode: 'TKS25305'},
+            {smt: 'III', no: 6, nama: 'Rekayasa pondasi', absen: 94, tugas: 81, uts: 84, uas: 88, sks: 4, kode: 'TKS25306'},
+            {smt: 'III', no: 7, nama: 'Praktikum Mekanika Tanah', absen: 82, tugas: 76, uts: 83, uas: 89, sks: 1, kode: 'TKS25307'},
+            {smt: 'III', no: 8, nama: 'Struktur Kayu dan Bambu', absen: 94, tugas: 79, uts: 88, uas: 92, sks: 2, kode: 'TKS25308'},
+            {smt: 'III', no: 9, nama: 'Hidraulika', absen: 73, tugas: 89, uts: 80, uas: 90, sks: 1, kode: 'TKS25309'},
+            {smt: 'III', no: 10, nama: 'Praktikum hidraulika', absen: 86, tugas: 76, uts: 85, uas: 92, sks: 1, kode: 'TKS253010'},
+            
+            // Semester IV
+            {smt: 'IV', no: 1, nama: 'Metode Numerik', absen: 93, tugas: 78, uts: 85, uas: 94, sks: 3, kode: 'TKS25401'},
+            {smt: 'IV', no: 2, nama: 'Statistik & Probabilitas', absen: 83, tugas: 90, uts: 81, uas: 95, sks: 2, kode: 'TKS25402'},
+            {smt: 'IV', no: 3, nama: 'Analisis Struktur III', absen: 96, tugas: 91, uts: 85, uas: 91, sks: 2, kode: 'TKS25403'},
+            {smt: 'IV', no: 4, nama: 'Struktur Baja I', absen: 92, tugas: 89, uts: 93, uas: 89, sks: 2, kode: 'TKS25404'},
+            {smt: 'IV', no: 5, nama: 'Struktur Beton Bertulang I', absen: 95, tugas: 83, uts: 83, uas: 92, sks: 3, kode: 'TKS25405'},
+            {smt: 'IV', no: 6, nama: 'Bahan Perkerasan', absen: 94, tugas: 87, uts: 90, uas: 95, sks: 2, kode: 'TKS25406'},
+            {smt: 'IV', no: 7, nama: 'Manejemen Konstruksi', absen: 93, tugas: 84, uts: 81, uas: 89, sks: 3, kode: 'TKS25407'},
+            {smt: 'IV', no: 8, nama: 'Hidrologi Terapan', absen: 86, tugas: 85, uts: 85, uas: 89, sks: 1, kode: 'TKS25408'},
+            {smt: 'IV', no: 9, nama: 'Pratikum Teknologi bahan & beton', absen: 93, tugas: 89, uts: 90, uas: 92, sks: 1, kode: 'TKS25409'},
+            {smt: 'IV', no: 10, nama: 'Praktikum Hidrologi', absen: 86, tugas: 80, uts: 83, uas: 86, sks: 1, kode: 'TKS254010'},
+            {smt: 'IV', no: 11, nama: 'Bahasa Inggris Teknik', absen: 83, tugas: 90, uts: 80, uas: 85, sks: 2, kode: 'TKS254011'},
+            
+            // Semester V
+            {smt: 'V', no: 1, nama: 'Matematika IV', absen: 95, tugas: 92, uts: 87, uas: 89, sks: 2, kode: 'TKS25501'},
+            {smt: 'V', no: 2, nama: 'Struktur Baja II', absen: 83, tugas: 94, uts: 83, uas: 90, sks: 3, kode: 'TKS25502'},
+            {smt: 'V', no: 3, nama: 'Struktur Beton Bertulang II', absen: 87, tugas: 95, uts: 86, uas: 92, sks: 3, kode: 'TKS25503'},
+            {smt: 'V', no: 4, nama: 'Rekayasa Irigasi', absen: 88, tugas: 89, uts: 89, uas: 81, sks: 3, kode: 'TKS25504'},
+            {smt: 'V', no: 5, nama: 'Drainase', absen: 96, tugas: 79, uts: 82, uas: 90, sks: 2, kode: 'TKS25505'},
+            {smt: 'V', no: 6, nama: 'Kewirausahaan', absen: 92, tugas: 91, uts: 85, uas: 93, sks: 3, kode: 'UNO3011TKS'},
+            {smt: 'V', no: 7, nama: 'Metode Pelaks. Konstruksi', absen: 96, tugas: 94, uts: 82, uas: 96, sks: 2, kode: 'TKS25506'},
+            {smt: 'V', no: 8, nama: 'K3 Konstruksi & Manajemen Risiko', absen: 78, tugas: 93, uts: 85, uas: 90, sks: 2, kode: 'TKS25507'},
+            {smt: 'V', no: 9, nama: 'Praktikum Bahan Perkerasan', absen: 83, tugas: 95, uts: 81, uas: 93, sks: 1, kode: 'TKS25508'},
+            {smt: 'V', no: 10, nama: 'KKN (Kuliah Kerja Nyata)', absen: 82, tugas: 89, uts: 80, uas: 95, sks: 3, kode: 'UNO3012'},
+            
+            // Semester VI
+            {smt: 'VI', no: 1, nama: 'Aplikasi komputer teknik Sipil', absen: 95, tugas: 86, uts: 87, uas: 90, sks: 2, kode: 'TKS25601'},
+            {smt: 'VI', no: 2, nama: 'MK Pilihan 1', absen: 91, tugas: 93, uts: 81, uas: 83, sks: 2, kode: 'TKSP'},
+            {smt: 'VI', no: 3, nama: 'MK Pilihan 2', absen: 95, tugas: 96, uts: 85, uas: 88, sks: 2, kode: 'TKSP'},
+            {smt: 'VI', no: 4, nama: 'MK Pilihan 3', absen: 89, tugas: 86, uts: 82, uas: 89, sks: 2, kode: 'TKSP'},
+            {smt: 'VI', no: 5, nama: 'MK Pilihan 4', absen: 88, tugas: 83, uts: 91, uas: 90, sks: 2, kode: 'TKSP'},
+            {smt: 'VI', no: 6, nama: 'MK Pilihan 5', absen: 97, tugas: 95, uts: 90, uas: 82, sks: 2, kode: 'TKSP'},
+            {smt: 'VI', no: 7, nama: 'Pend. Pancasila', absen: 86, tugas: 78, uts: 85, uas: 82, sks: 2, kode: 'UNO2002TKS'},
+            {smt: 'VI', no: 8, nama: 'Perancangan Bangunan Sipil I (Capstone)', absen: 89, tugas: 90, uts: 81, uas: 90, sks: 2, kode: 'TKS25602'},
+            {smt: 'VI', no: 9, nama: 'Praktik Kerja', absen: 85, tugas: 87, uts: 84, uas: 91, sks: 2, kode: 'TKS25603'},
+            
+            // Semester VII
+            {smt: 'VII', no: 1, nama: 'Bahasa Indonesia', absen: 93, tugas: 79, uts: 81, uas: 83, sks: 2, kode: 'UNO2003TKS'},
+            {smt: 'VII', no: 2, nama: 'MK Pilihan 6', absen: 92, tugas: 90, uts: 85, uas: 84, sks: 2, kode: 'TKS25701'},
+            {smt: 'VII', no: 3, nama: 'Metodologi Penelitian', absen: 95, tugas: 92, uts: 87, uas: 81, sks: 2, kode: 'TKSP'},
+            {smt: 'VII', no: 4, nama: 'Pendidikan Agama', absen: 887, tugas: 95, uts: 90, uas: 81, sks: 2, kode: 'UNO2001TKS'},
+            {smt: 'VII', no: 5, nama: 'Pend, Kewarganegaraan', absen: 89, tugas: 92, uts: 83, uas: 87, sks: 2, kode: 'UNO2004TKS'},
+            {smt: 'VII', no: 6, nama: 'Etika Profesi & Tanggung Jawab Insinyur', absen: 90, tugas: 89, uts: 90, uas: 92, sks: 2, kode: 'TKS25702'},
+            {smt: 'VII', no: 7, nama: 'Perancangan Bangunan Sipil II(Capstone)', absen: 98, tugas: 86, uts: 81, uas: 89, sks: 2, kode: 'TKS25703'},
+            
+            // Semester VIII
+            {smt: 'VIII', no: 1, nama: 'Tugas Akhir', absen: 87, tugas: 84, uts: 84, uas: 90, sks: 3, kode: 'TKS25801'},
+            {smt: 'VIII', no: 2, nama: 'Pendadaran', absen: 80, tugas: 95, uts: 86, uas: 89, sks: 1, kode: 'TKS25802'}
+        ];
+        
+        // Data kriteria penilaian
+        const kriteriaPenilaian = [
+            {min: 85, max: 100, huruf: 'A', bobot: 4.00, kriteria: 'Sangat Baik Sekali'},
+            {min: 80, max: 84.99, huruf: 'A-', bobot: 3.75, kriteria: 'Sangat Baik'},
+            {min: 75, max: 79.99, huruf: 'B+', bobot: 3.50, kriteria: 'Baik Sekali'},
+            {min: 70, max: 74.99, huruf: 'B', bobot: 3.00, kriteria: 'Baik'},
+            {min: 65, max: 69.99, huruf: 'B-', bobot: 2.75, kriteria: 'Cukup Baik'},
+            {min: 60, max: 64.99, huruf: 'C+', bobot: 2.50, kriteria: 'Cukup'},
+            {min: 55, max: 59.99, huruf: 'C', bobot: 2.00, kriteria: 'Cukup'},
+            {min: 50, max: 54.99, huruf: 'C-', bobot: 1.75, kriteria: 'Kurang'},
+            {min: 40, max: 49.99, huruf: 'D', bobot: 1.00, kriteria: 'Kurang Sekali'},
+            {min: 0, max: 39.99, huruf: 'E', bobot: 0.00, kriteria: 'Gagal'}
+        ];
+        
+        // Fungsi untuk menghitung nilai akhir
+        function hitungNilaiAkhir(absen, tugas, uts, uas) {
+            return (absen * 0.05) + (tugas * 0.05) + (uts * 0.35) + (uas * 0.55);
+        }
+        
+        // Fungsi untuk menghitung nilai huruf
+        function hitungNilaiHuruf(nilai) {
+            if (nilai >= 85) return 'A';
+            if (nilai >= 80) return 'A-';
+            if (nilai >= 75) return 'B+';
+            if (nilai >= 70) return 'B';
+            if (nilai >= 65) return 'B-';
+            if (nilai >= 60) return 'C+';
+            if (nilai >= 55) return 'C';
+            if (nilai >= 50) return 'C-';
+            if (nilai >= 40) return 'D';
+            return 'E';
+        }
+        
+        // Fungsi untuk menghitung bobot nilai
+        function hitungBobot(nilaiHuruf) {
+            switch (nilaiHuruf) {
+                case 'A': return 4.00;
+                case 'A-': return 3.75;
+                case 'B+': return 3.50;
+                case 'B': return 3.00;
+                case 'B-': return 2.75;
+                case 'C+': return 2.50;
+                case 'C': return 2.00;
+                case 'C-': return 1.75;
+                case 'D': return 1.00;
+                default: return 0;
+            }
+        }
+        
+        // Fungsi untuk mendapatkan kriteria berdasarkan nilai
+        function getKriteria(nilai) {
+            const kriteria = kriteriaPenilaian.find(k => nilai >= k.min && nilai <= k.max);
+            return kriteria ? kriteria.kriteria : '';
+        }
+        
+        // Fungsi untuk menampilkan database nilai
+        function tampilkanDatabase() {
+            const tableBody = document.querySelector('#nilaiDatabase tbody');
+            tableBody.innerHTML = '';
+            
+            let currentSmt = '';
+            
+            mataKuliahData.forEach((mk, index) => {
+                // Hitung nilai akhir
+                const nilaiAkhir = hitungNilaiAkhir(mk.absen, mk.tugas, mk.uts, mk.uas);
+                const nilaiHuruf = hitungNilaiHuruf(nilaiAkhir);
+                const bobot = hitungBobot(nilaiHuruf);
+                const kriteria = getKriteria(nilaiAkhir);
+                
+                // Tambahkan header semester jika berbeda
+                if (mk.smt !== currentSmt) {
+                    const headerRow = document.createElement('tr');
+                    headerRow.className = 'semester-header';
+                    headerRow.innerHTML = `<td colspan="11">Semester ${mk.smt}</td>`;
+                    tableBody.appendChild(headerRow);
+                    currentSmt = mk.smt;
+                }
+                
+                // Buat baris data
+                const row = document.createElement('tr');
+                row.innerHTML = `
+                    <td>${mk.smt}</td>
+                    <td>${mk.no}</td>
+                    <td>${mk.nama}</td>
+                    <td class="editable" data-index="${index}" data-field="absen">${mk.absen}</td>
+                    <td class="editable" data-index="${index}" data-field="tugas">${mk.tugas}</td>
+                    <td class="editable" data-index="${index}" data-field="uts">${mk.uts}</td>
+                    <td class="editable" data-index="${index}" data-field="uas">${mk.uas}</td>
+                    <td id="nilai-akhir-${index}">${nilaiAkhir.toFixed(2)}</td>
+                    <td id="nilai-huruf-${index}">${nilaiHuruf}</td>
+                    <td id="bobot-${index}">${bobot.toFixed(2)}</td>
+                    <td class="grade-info" id="kriteria-${index}">${kriteria}</td>
+                `;
+                tableBody.appendChild(row);
+            });
+            
+            // Tambahkan event listener untuk edit
+            document.querySelectorAll('.editable').forEach(cell => {
+                cell.addEventListener('click', function() {
+                    makeEditable(this);
+                });
+            });
+            
+            // Tambahkan event listener untuk popup kriteria
+            document.querySelectorAll('.grade-info').forEach(cell => {
+                cell.addEventListener('mouseenter', function() {
+                    showGradePopup(this);
+                });
+                
+                cell.addEventListener('mouseleave', function() {
+                    hideGradePopup();
+                });
+            });
+        }
+        
+        // Fungsi untuk membuat sel dapat diedit
+        function makeEditable(cell) {
+            const value = cell.textContent;
+            const index = cell.getAttribute('data-index');
+            const field = cell.getAttribute('data-field');
+            
+            const input = document.createElement('input');
+            input.type = 'number';
+            input.className = 'edit-input';
+            input.value = value;
+            
+            input.addEventListener('blur', function() {
+                const newValue = parseFloat(this.value) || 0;
+                cell.textContent = newValue;
+                
+                // Update data
+                mataKuliahData[index][field] = newValue;
+                
+                // Hitung ulang nilai akhir
+                const mk = mataKuliahData[index];
+                const nilaiAkhir = hitungNilaiAkhir(mk.absen, mk.tugas, mk.uts, mk.uas);
+                const nilaiHuruf = hitungNilaiHuruf(nilaiAkhir);
+                const bobot = hitungBobot(nilaiHuruf);
+                const kriteria = getKriteria(nilaiAkhir);
+                
+                document.getElementById(`nilai-akhir-${index}`).textContent = nilaiAkhir.toFixed(2);
+                document.getElementById(`nilai-huruf-${index}`).textContent = nilaiHuruf;
+                document.getElementById(`bobot-${index}`).textContent = bobot.toFixed(2);
+                document.getElementById(`kriteria-${index}`).textContent = kriteria;
+            });
+            
+            input.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter') {
+                    this.blur();
+                }
+            });
+            
+            cell.innerHTML = '';
+            cell.appendChild(input);
+            input.focus();
+            input.select();
+        }
+        
+        // Fungsi untuk menampilkan popup kriteria
+        function showGradePopup(element) {
+            const popup = document.getElementById('gradePopup');
+            const rect = element.getBoundingClientRect();
+            
+            popup.style.left = rect.left + 'px';
+            popup.style.top = (rect.bottom + window.scrollY) + 'px';
+            popup.style.display = 'block';
+        }
+        
+        // Fungsi untuk menyembunyikan popup kriteria
+        function hideGradePopup() {
+            document.getElementById('gradePopup').style.display = 'none';
+        }
+        
+        // Fungsi untuk toggle edit informasi mahasiswa
+        function toggleStudentInfoEdit() {
+            const section = document.getElementById('studentInfoSection');
+            section.classList.toggle('edit-mode');
+            
+            // Update input values with current data
+            if (section.classList.contains('edit-mode')) {
+                document.getElementById('inputNama').value = studentData.nama;
+                document.getElementById('inputNPM').value = studentData.npm;
+                document.getElementById('inputTahunMasuk').value = studentData.tahunMasuk;
+                document.getElementById('inputNoHP').value = studentData.noHP;
+                document.getElementById('inputDospem').value = studentData.dospem;
+            }
+        }
+        
+        // Fungsi untuk menyimpan informasi mahasiswa
+        function saveStudentInfo() {
+            // Get values from inputs
+            studentData.nama = document.getElementById('inputNama').value;
+            studentData.npm = document.getElementById('inputNPM').value;
+            studentData.tahunMasuk = document.getElementById('inputTahunMasuk').value;
+            studentData.noHP = document.getElementById('inputNoHP').value;
+            studentData.dospem = document.getElementById('inputDospem').value;
+            
+            // Update display
+            updateStudentInfoDisplay();
+            
+            // Exit edit mode
+            document.getElementById('studentInfoSection').classList.remove('edit-mode');
+            
+            // Show notification
+            showNotification('Informasi mahasiswa berhasil diperbarui!');
+        }
+        
+        // Fungsi untuk membatalkan edit informasi mahasiswa
+        function cancelStudentInfoEdit() {
+            document.getElementById('studentInfoSection').classList.remove('edit-mode');
+        }
+        
+        // Fungsi untuk update tampilan informasi mahasiswa
+        function updateStudentInfoDisplay() {
+            document.getElementById('displayNama').textContent = studentData.nama;
+            document.getElementById('displayNPM').textContent = studentData.npm;
+            document.getElementById('displayTahunMasuk').textContent = studentData.tahunMasuk;
+            document.getElementById('displayNoHP').textContent = studentData.noHP;
+            document.getElementById('displayDospem').textContent = studentData.dospem;
+        }
+        
+        // Fungsi untuk menampilkan notifikasi
+        function showNotification(message) {
+            const notification = document.getElementById('notification');
+            notification.innerHTML = `<i class="bi bi-check-circle"></i> ${message}`;
+            notification.style.display = 'block';
+            
+            setTimeout(() => {
+                notification.style.display = 'none';
+            }, 3000);
+        }
+        
+        // Fungsi untuk menyimpan perubahan
+        function saveChanges() {
+            // Tampilkan notifikasi
+            showNotification('Perubahan nilai berhasil disimpan!');
+            
+            // Update transkrip
+            updateTranskrip();
+        }
+        
+        // Fungsi untuk update transkrip
+        function updateTranskrip() {
+            const transkripContent = document.getElementById('transkripContent');
+            transkripContent.innerHTML = '';
+            
+            // Kelompokkan mata kuliah per semester
+            const semesterGroups = {};
+            mataKuliahData.forEach(mk => {
+                if (!semesterGroups[mk.smt]) {
+                    semesterGroups[mk.smt] = [];
+                }
+                semesterGroups[mk.smt].push(mk);
+            });
+            
+            // Urutkan semester
+            const sortedSemesters = Object.keys(semesterGroups).sort((a, b) => {
+                const semesterOrder = ['I', 'II', 'III', 'IV', 'V', 'VI', 'VII', 'VIII'];
+                return semesterOrder.indexOf(a) - semesterOrder.indexOf(b);
+            });
+            
+            // Hitung total nilai dan mutu
+            let totalNilai = 0;
+            let totalMutu = 0;
+            let totalSKS = 0;
+            
+            // Buat transkrip per semester
+            sortedSemesters.forEach(smt => {
+                const semesterSection = document.createElement('div');
+                semesterSection.className = 'semester-section';
+                
+                const semesterTitle = document.createElement('div');
+                semesterTitle.className = 'semester-title';
+                semesterTitle.textContent = `SEMESTER ${smt}`;
+                semesterSection.appendChild(semesterTitle);
+                
+                const table = document.createElement('table');
+                table.className = 'course-table';
+                
+                // Header tabel
+                const thead = document.createElement('thead');
+                thead.innerHTML = `
+                    <tr>
+                        <th>No.</th>
+                        <th>Kode MK</th>
+                        <th>Mata Kuliah</th>
+                        <th>SKS</th>
+                        <th>NH</th>
+                        <th>NA</th>
+                        <th>B</th>
+                        <th>M</th>
+                        <th>Keterangan</th>
+                    </tr>
+                `;
+                table.appendChild(thead);
+                
+                // Body tabel
+                const tbody = document.createElement('tbody');
+                let semesterTotalNilai = 0;
+                let semesterTotalMutu = 0;
+                let semesterTotalSKS = 0;
+                
+                semesterGroups[smt].forEach(mk => {
+                    const nilaiAkhir = hitungNilaiAkhir(mk.absen, mk.tugas, mk.uts, mk.uas);
+                    const nilaiHuruf = hitungNilaiHuruf(nilaiAkhir);
+                    const bobot = hitungBobot(nilaiHuruf);
+                    const mutu = bobot * mk.sks;
+                    const kriteria = getKriteria(nilaiAkhir);
+                    
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${mk.no}</td>
+                        <td>${mk.kode}</td>
+                        <td>${mk.nama}</td>
+                        <td>${mk.sks}</td>
+                        <td>${nilaiHuruf}</td>
+                        <td>${nilaiAkhir.toFixed(2)}</td>
+                        <td>${bobot.toFixed(2)}</td>
+                        <td>${mutu.toFixed(2)}</td>
+                        <td class="grade-info">${kriteria}</td>
+                    `;
+                    tbody.appendChild(row);
+                    
+                    semesterTotalNilai += nilaiAkhir;
+                    semesterTotalMutu += mutu;
+                    semesterTotalSKS += mk.sks;
+                });
+                
+                // Baris total
+                const totalRow = document.createElement('tr');
+                totalRow.style.fontWeight = 'bold';
+                totalRow.innerHTML = `
+                    <td colspan="3">Total :</td>
+                    <td>${semesterTotalSKS}</td>
+                    <td></td>
+                    <td>${semesterTotalNilai.toFixed(2)}</td>
+                    <td>${(semesterTotalMutu / semesterTotalSKS).toFixed(2)}</td>
+                    <td>${semesterTotalMutu.toFixed(2)}</td>
+                    <td></td>
+                `;
+                tbody.appendChild(totalRow);
+                
+                table.appendChild(tbody);
+                semesterSection.appendChild(table);
+                transkripContent.appendChild(semesterSection);
+                
+                // Update total
+                totalNilai += semesterTotalNilai;
+                totalMutu += semesterTotalMutu;
+                totalSKS += semesterTotalSKS;
+                
+                // Update IPS dengan mapping Roman ke Arab
+                const romanToArabic = {
+                    'I': 1, 'II': 2, 'III': 3, 'IV': 4, 
+                    'V': 5, 'VI': 6, 'VII': 7, 'VIII': 8
+                };
+                const semesterNumber = romanToArabic[smt];
+                const ips = semesterTotalMutu / semesterTotalSKS;
+                const ipsElement = document.getElementById(`ips${semesterNumber}`);
+                if (ipsElement) {
+                    ipsElement.textContent = ips.toFixed(2);
+                }
+            });
+            
+            // Update total nilai dan mutu
+            document.getElementById('totalNilai').textContent = totalNilai.toFixed(2);
+            document.getElementById('jumlahMutu').textContent = totalMutu.toFixed(2);
+            
+            // Update IPK
+            const ipk = totalMutu / totalSKS;
+            document.getElementById('ipk').textContent = ipk.toFixed(2);
+        }
+        
+        // Inisialisasi
+        document.addEventListener('DOMContentLoaded', function() {
+            tampilkanDatabase();
+            updateTranskrip();
+            updateStudentInfoDisplay();
+        });
+    </script>
+</body>
+</html>
